@@ -3,4 +3,4 @@ WORKDIR /usr/src/app
 copy ./*.py .
 copy ./*.json .
 copy ./*.txt .
-CMD ["parse_flat_file.py" "./spec.json" "./smaple_wheader.txt" "./op.csv"]
+ENTRYPOINT ["python", "parse_flat_file.py", "spec.json", "sample_wheader.txt", "op.csv"]

@@ -91,10 +91,10 @@ def parse_fixed_width_file(spec_file_path: str,
         print(f"Error parsing flat file\n{str(err)}")
 
 
-if len(sys.argv) == 4:
+if len(sys.argv) >= 4:
     parse_fixed_width_file(spec_file_path=sys.argv[1],
                            ip_flat_file_path=sys.argv[2],
                            op_csv_file_path=sys.argv[3])
 else:
     print(f"insufficient inputs")
-    print(f"python parse_flat_file.py input_spec_file_path input_fixed_width_file_path output_csv_file_path")
+    print(f"python parse_flat_file.py input_spec_file_path.json input_fixed_width_file_path output_csv_file_path.csv")
