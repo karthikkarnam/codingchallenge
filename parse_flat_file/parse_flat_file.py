@@ -1,5 +1,4 @@
 import json
-import os
 import sys
 from json import JSONDecodeError
 from typing import Dict, List
@@ -7,9 +6,9 @@ from typing import Dict, List
 
 def read_json_spec(file_path: str) -> Dict:
     """
-
-    :param file_path:
-    :return:
+    Read input JSON Spec and return it as Dictionary
+    :param file_path: File path of the input spec
+    :return: a dictionary containing input spec
     """
     ip_spec = None
     try:
@@ -25,32 +24,31 @@ def read_json_spec(file_path: str) -> Dict:
 def parse_line(col_offsets: List[int],
                ip_line: str) -> str:
     """
-
-    :param col_offsets:
-    :param ip_line:
-    :return:
+    Parse the line based on list of offset to a delimited string
+    :param col_offsets: list of column offset
+    :param ip_line: complete line containing all columns
+    :return: a string separated with "," which is a col delimiter
     """
     op_line = ""
     # loop through the column offsets
     for offset in col_offsets:
         op_line += (ip_line[:offset]).strip() + ","
         ip_line = ip_line[offset:]
-    return op_line.strip(",") + os.linesep
+    return op_line.strip(",") + "\n"
 
 
 def parse_fixed_width_file(spec_file_path: str,
                            ip_flat_file_path: str,
                            op_csv_file_path: str):
     """
-
-    :param spec_file_path:
-    :param ip_flat_file_path:
-    :param op_csv_file_path:
-    :return:
+    Parse a fixed width file to a CSV
+    :param spec_file_path: input specification file path
+    :param ip_flat_file_path: input fixed width flat file path
+    :param op_csv_file_path: output CSV file path
     """
     ip_spec = read_json_spec(spec_file_path)
     try:
-        spec_header = ",".join(ip_spec["ColumnNames"]) + os.linesep
+        spec_header = ",".join(ip_spec["ColumnNames"])
         col_offsets = ip_spec["Offsets"]
         # convert char to int
         col_offsets = [int(offset) for offset in col_offsets]
@@ -68,7 +66,7 @@ def parse_fixed_width_file(spec_file_path: str,
             if not header_line:
                 sys.exit()
             parsed_header = parse_line(col_offsets=col_offsets, ip_line=header_line)
-            if parsed_header == spec_header:
+            if parsed_header.strip("\n").strip("\r\n") == spec_header:
                 # if the input file has the header
                 if op_header:
                     # if output needs a header
@@ -77,7 +75,7 @@ def parse_fixed_width_file(spec_file_path: str,
                 # if the input doesn't contain the header
                 if op_header:
                     # if output needs header, write it from the spec
-                    op_file.write(spec_header)
+                    op_file.write(spec_header + "\n")
                 # write the read line, as the first line is the data line
                 op_file.write(parsed_header)
 
@@ -91,10 +89,12 @@ def parse_fixed_width_file(spec_file_path: str,
         print(f"Error parsing flat file\n{str(err)}")
 
 
-if len(sys.argv) >= 4:
-    parse_fixed_width_file(spec_file_path=sys.argv[1],
-                           ip_flat_file_path=sys.argv[2],
-                           op_csv_file_path=sys.argv[3])
-else:
-    print(f"insufficient inputs")
-    print(f"python parse_flat_file.py input_spec_file_path.json input_fixed_width_file_path output_csv_file_path.csv")
+if __name__ == "__main__":
+    if len(sys.argv) >= 4:
+        parse_fixed_width_file(spec_file_path=sys.argv[1],
+                               ip_flat_file_path=sys.argv[2],
+                               op_csv_file_path=sys.argv[3])
+    else:
+        print(f"insufficient arguments")
+        print(
+            f"python parse_flat_file.py input_spec_file_path.json input_fixed_width_file_path output_csv_file_path.csv")
